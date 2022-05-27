@@ -27,6 +27,9 @@ func New(lg *log.Logger, auth *auth.Auth) *Handler {
 	}
 
 	mux.Get("/", h.getHome)
+	mux.Post("/register", h.registerUser)
+	mux.Post("/login", h.loginUser)
+	mux.Post("/logout", h.logoutUser)
 
 	return &h
 }
