@@ -27,7 +27,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	go http.ListenAndServe(":3000", handler.Router)
-	fmt.Println("Listening on localhost:3000...")
+	go http.ListenAndServe(":5000", handler.Router)
+	fmt.Println("Listening on localhost:5000...")
 	Stop()
 }

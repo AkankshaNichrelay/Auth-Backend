@@ -11,9 +11,9 @@ import (
 
 // Handler used for handling HTTP server requests
 type Handler struct {
-	Router        *chi.Mux
-	log           *log.Logger
-	Authenticator *auth.Auth
+	Router *chi.Mux
+	log    *log.Logger
+	auth   *auth.Auth
 }
 
 // New returns a new Handler instance
@@ -21,14 +21,14 @@ func New(lg *log.Logger, auth *auth.Auth) *Handler {
 	mux := chi.NewRouter()
 
 	h := Handler{
-		log:           lg,
-		Router:        mux,
-		Authenticator: auth,
+		log:    lg,
+		Router: mux,
+		auth:   auth,
 	}
 
 	mux.Get("/", h.getHome)
 	mux.Post("/register", h.registerUser)
-	mux.Post("/login", h.loginUser)
+	mux.Post("/login", h.LoginUser)
 	mux.Post("/logout", h.logoutUser)
 
 	return &h

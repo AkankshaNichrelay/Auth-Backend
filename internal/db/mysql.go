@@ -3,8 +3,11 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 
+	"github.com/AkankshaNichrelay/Auth-Backend/internal/session"
+	"github.com/AkankshaNichrelay/Auth-Backend/internal/user"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -54,14 +57,46 @@ func New(log *log.Logger, cfg *Config) (*Mysql, error) {
 	return &mysql, nil
 }
 
-// FetchRows
-func FetchRows(ctx context.Context, tag string, result interface{}, query string, args ...interface{}) (int, error) {
-	// TODO
+// Close the db connection
+func (mysql *Mysql) Close() {
+	if mysql.db == nil {
+		return
+	}
+	err := mysql.db.Close()
+	if err != nil {
+		mysql.log.Println("MySql Close failed, err:", err.Error())
+	}
+}
+
+// FetchRow
+func (mysql *Mysql) FetchRow(ctx context.Context, tag string, result interface{}, query string, args ...interface{}) (int, error) {
+	row := mysql.db.QueryRowContext(ctx, query, args...)
+
+	// This should ideally be handled by creating a generic struct mapper using reflection
+	switch result.(type) {
+	case user.User:
+		if err := row.Scan(result.(user.User).Id, result.(user.User).Email, result.(user.User).Password); err != nil {
+			if err == sql.ErrNoRows {
+				return 0, nil
+			}
+			return 0, fmt.Errorf("FetchRow failed err: %v", err)
+		}
+	case session.Session:
+		if err := row.Scan(result.(session.Session).SessionId, result.(session.Session).UserId); err != nil {
+			if err == sql.ErrNoRows {
+				return 0, nil
+			}
+			return 0, fmt.Errorf("FetchRow failed err: %v", err)
+		}
+	default:
+		mysql.log.Println("Type not handled")
+	}
+
 	return 0, nil
 }
 
 // Exec
-func Exec(ctx context.Context, tag string, result interface{}, query string, args ...interface{}) (interface{}, error) {
+func (mysql *Mysql) Exec(ctx context.Context, tag string, result interface{}, query string, args ...interface{}) (interface{}, error) {
 	// TODO
 	return nil, nil
 }
